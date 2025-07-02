@@ -1,0 +1,40 @@
+{
+  "name": "my-mcp-server-installer",
+  "version": "1.0.0",
+  "description": "Installer for My MCP Server with bearer token authentication",
+  "main": "dist/install.js",
+  "bin": {
+    "my-mcp-server-installer": "./dist/install.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "prepare": "npm run build",
+    "install-server": "node dist/install.js install",
+    "uninstall-server": "node dist/install.js uninstall",
+    "status": "node dist/install.js status"
+  },
+  "files": [
+    "dist/**/*",
+    "README.md"
+  ],
+  "keywords": [
+    "mcp",
+    "claude",
+    "desktop",
+    "installer",
+    "bearer-token"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/my-mcp-server-installer.git"
+  }
+}
