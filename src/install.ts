@@ -153,7 +153,6 @@ class MCPInstaller {
 
 async function main() {
   const installer = new MCPInstaller();
-  const installer = new MCPInstaller();
   const command = process.argv[2];
   try {
     switch (command) {
