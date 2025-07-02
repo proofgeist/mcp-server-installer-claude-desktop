@@ -1,6 +1,8 @@
-# MCP Server Installer
+# MCP Server with Auth Bearer Token Installer
 
 A simple installer for MCP (Model Context Protocol) servers that need bearer token authentication with Claude Desktop.
+
+Clone me to make your own mcp-server installer
 
 ## Quick Start
 
