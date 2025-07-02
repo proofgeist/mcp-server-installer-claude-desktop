@@ -4,7 +4,7 @@
   "description": "Installer for My MCP Server with bearer token authentication",
   "main": "dist/install.js",
   "bin": {
-    "my-mcp-server-installer": "./dist/install.js"
+    "pg-mcp-server-installer": "./dist/install.js"
   },
   "scripts": {
     "build": "tsc",
@@ -28,7 +28,8 @@
   "license": "MIT",
   "devDependencies": {
     "@types/node": "^20.19.4",
-    "typescript": "^5.0.0"
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
   },
   "engines": {
     "node": ">=18.0.0"
@@ -36,5 +37,6 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/yourusername/my-mcp-server-installer.git"
-  }
+  },
+  "type": "module"
 }

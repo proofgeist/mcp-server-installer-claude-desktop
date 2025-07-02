@@ -1,13 +1,37 @@
 #!/usr/bin/env node
 
-const SERVER_NAME = 'my-api-server';
-const PACKAGE_NAME = 'my-mcp-server';
+// ===============================
+// MCP Server Installer Template
+//
+// To use this file for your own MCP server installer:
+// 1. Change the CLI_NAME constant below to match your CLI command (should match the bin key in package.json)
+// 2. Change the SERVER_CONFIG object below to set your server's name and endpoint
+// 3. The rest of the logic is generic and does not need to be changed
+// ===============================
+
+const CLI_NAME = 'pg-mcp-server-installer'; // Should match package.json "bin" key
+const SERVER_CONFIG = {
+  name: 'My MCP Server',
+  endpoint: 'https://my-mcp-server.com/sse'
+};
+
+function makeClaudeConfigEntry(token: string) {
+  return {
+    command: "npx",
+    args: [
+      "mcp-remote",
+      SERVER_CONFIG.endpoint,
+      "--header",
+      `Authorization: Bearer ${token}`
+    ],
+    env: {}
+  };
+}
 
 import fs from 'fs/promises';
 import path from 'path';
 import os from 'os';
 import readline from 'readline';
-import { execSync } from 'child_process';
 
 interface ClaudeConfig {
   mcpServers: {
@@ -22,15 +46,11 @@ interface ClaudeConfig {
 class MCPInstaller {
   private configPath: string;
   private serverName: string;
-  private packageName: string;
 
   constructor() {
-    this.serverName = SERVER_NAME;
-    this.packageName = PACKAGE_NAME;
-    
+    this.serverName = SERVER_CONFIG.name;
     const homeDir = os.homedir();
     const platform = os.platform();
-    
     if (platform === 'darwin') {
       this.configPath = path.join(homeDir, 'Library/Application Support/Claude/claude_desktop_config.json');
     } else if (platform === 'win32') {
@@ -45,7 +65,6 @@ class MCPInstaller {
       input: process.stdin,
       output: process.stdout
     });
-
     return new Promise((resolve) => {
       rl.question(`Enter your bearer token for ${this.serverName}: `, (token) => {
         rl.close();
@@ -76,18 +95,6 @@ class MCPInstaller {
     await fs.writeFile(this.configPath, JSON.stringify(config, null, 2));
   }
 
-  private getServerCommand(): string {
-    try {
-      // Try to find the package globally first
-      const globalPath = execSync('npm root -g', { encoding: 'utf-8' }).trim();
-      const serverPath = path.join(globalPath, this.packageName, 'dist/index.js');
-      return `node ${serverPath}`;
-    } catch {
-      // Fall back to npx
-      return `npx ${this.packageName}`;
-    }
-  }
-
   async install(): Promise<void> {
     console.log(`Installing ${this.serverName} MCP Server...`);
     
@@ -104,12 +111,7 @@ class MCPInstaller {
     const config = await this.loadConfig();
 
     // Add server configuration
-    config.mcpServers[this.serverName] = {
-      command: this.getServerCommand(),
-      env: {
-        BEARER_TOKEN: token
-      }
-    };
+    config.mcpServers[this.serverName] = makeClaudeConfigEntry(token);
 
     // Save updated config
     await this.saveConfig(config);
@@ -121,9 +123,7 @@ class MCPInstaller {
 
   async uninstall(): Promise<void> {
     console.log(`Uninstalling ${this.serverName} MCP Server...`);
-    
     const config = await this.loadConfig();
-    
     if (config.mcpServers[this.serverName]) {
       delete config.mcpServers[this.serverName];
       await this.saveConfig(config);
@@ -136,22 +136,25 @@ class MCPInstaller {
   async status(): Promise<void> {
     const config = await this.loadConfig();
     const server = config.mcpServers[this.serverName];
-    
     if (server) {
       console.log(`${this.serverName} MCP Server: ✅ INSTALLED`);
       console.log(`Command: ${server.command}`);
-      console.log(`Token configured: ${server.env?.BEARER_TOKEN ? '✅ Yes' : '❌ No'}`);
+      if (server.args) {
+        console.log(`Args: ${JSON.stringify(server.args)}`);
+      }
+      if (server.env) {
+        console.log(`Env: ${JSON.stringify(server.env)}`);
+      }
     } else {
       console.log(`${this.serverName} MCP Server: ❌ NOT INSTALLED`);
     }
   }
 }
 
-// Usage example - customize these values for your specific MCP server
 async function main() {
   const installer = new MCPInstaller();
+  const installer = new MCPInstaller();
   const command = process.argv[2];
-
   try {
     switch (command) {
       case 'install':
@@ -164,15 +167,14 @@ async function main() {
         await installer.status();
         break;
       default:
-        console.log('Usage: npx my-mcp-server-installer [install|uninstall|status]');
+        console.log(`Usage: npx ${CLI_NAME} [install|uninstall|status]`);
         process.exit(1);
     }
   } catch (error) {
+    console.error('Error:', error instanceof Error ? error.message : String(error));
     console.error('Error:', error instanceof Error ? error.message : String(error));
     process.exit(1);
   }
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
-  main();
-}
+main();
