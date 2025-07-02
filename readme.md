@@ -53,11 +53,11 @@ To create your own installer:
 
 ```
 ├── src/
-│   └── install.ts      # Main installer logic
+│   └── install.ts      # Main installer logic (TypeScript)
 ├── dist/               # Compiled JavaScript (generated)
 ├── package.json        # Package configuration
 ├── tsconfig.json       # TypeScript configuration
-└── README.md          # This file
+└── README.md           # This file
 ```
 
 ## How It Works
