@@ -1,5 +1,8 @@
 #!/usr/bin/env node
 
+const SERVER_NAME = 'my-api-server';
+const PACKAGE_NAME = 'my-mcp-server';
+
 import fs from 'fs/promises';
 import path from 'path';
 import os from 'os';
@@ -21,9 +24,9 @@ class MCPInstaller {
   private serverName: string;
   private packageName: string;
 
-  constructor(serverName: string, packageName: string) {
-    this.serverName = serverName;
-    this.packageName = packageName;
+  constructor() {
+    this.serverName = SERVER_NAME;
+    this.packageName = PACKAGE_NAME;
     
     const homeDir = os.homedir();
     const platform = os.platform();
@@ -145,11 +148,8 @@ class MCPInstaller {
 }
 
 // Usage example - customize these values for your specific MCP server
-const SERVER_NAME = 'my-api-server';
-const PACKAGE_NAME = 'my-mcp-server';
-
 async function main() {
-  const installer = new MCPInstaller(SERVER_NAME, PACKAGE_NAME);
+  const installer = new MCPInstaller();
   const command = process.argv[2];
 
   try {
@@ -168,7 +168,7 @@ async function main() {
         process.exit(1);
     }
   } catch (error) {
-    console.error('Error:', error.message);
+    console.error('Error:', error instanceof Error ? error.message : String(error));
     process.exit(1);
   }
 }
